@@ -135,3 +135,6 @@ on_create.sh
 # VS Code environment files
 .vscode/
 
+# AWS cli commands
+aws_cli_cmd.txt
+
