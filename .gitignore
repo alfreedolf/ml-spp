@@ -139,5 +139,5 @@ on_create.sh
 aws_cli_cmd.txt
 
 # trials files
-test_data_sources.py
+trials/
 
