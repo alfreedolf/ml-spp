@@ -154,7 +154,7 @@ def json_serialize(data, start, end, target_column, covariate_columns, interval)
 
 
 # Function to first split the data into training and test sets, and then to JSON serialize both sets
-def train_test_split(data, feature_columns, target_column, interval, train_part=0.9, num_test_windows=4):
+def train_test_split2json(data, feature_columns, target_column, interval, train_part=0.9, num_test_windows=4):
     num_samples = len(data.index.values)
     num_train = int(train_part * num_samples)
     num_test = int((num_samples - num_train) / num_test_windows)
