@@ -135,6 +135,9 @@ on_create.sh
 # VS Code environment files
 .vscode/
 
+# IntelliJ Idea files
+.idea/
+
 # AWS cli commands
 aws_cli_cmd.txt
 
