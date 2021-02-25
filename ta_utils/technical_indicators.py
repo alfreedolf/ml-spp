@@ -27,6 +27,9 @@ def bollinger_bands(stock_price, window_size=20, num_of_std=2):
 
     return rolling_mean, upper_band, lower_band
 
+# momentum
+
+
 
 
     
