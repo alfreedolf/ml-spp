@@ -23,14 +23,14 @@ def deeparize_yfinance(stock_data, stock_symbols, interval, metrices=None):
 
     columns_names = stock_data.columns
     data_feed = pd.DataFrame()
-    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock_data.CalcDateTime.unique()))),
+    data_feed['Date'] = pd.to_datetime(pd.Series(sorted(list(stock_data.Date.unique()))),
                                                infer_datetime_format=True)
-    data_feed.index = data_feed['CalcDateTime']
-    data_feed.drop('CalcDateTime', axis=1, inplace=True)
+    data_feed.index = data_feed['Date']
+    data_feed.drop('Date', axis=1, inplace=True)
 
     for mnemonic in stock_symbols:
         mnemonic_data = stock_data[stock_data.Mnemonic == mnemonic].copy()
-        mnemonic_data.index = mnemonic_data['CalcDateTime']
+        mnemonic_data.index = mnemonic_data['Date']
         mnemonic_data = mnemonic_data.sort_index()
         mnemonic_data = mnemonic_data.iloc[:, -6:]
         if metrices is None:
