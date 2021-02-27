@@ -21,21 +21,19 @@ def deeparize_yfinance(stock_data, stock_symbols, interval, metrics=None):
     Function that formats Yahoo! Finance stock market data into a format suitable for DeepAR algorithm
     """
 
-<<<<<<< Updated upstream
+
     columns_names = stock_data.columns
     data_feed = pd.DataFrame()
-    data_feed['Date'] = pd.to_datetime(pd.Series(sorted(list(stock_data.Date.unique()))),
-||||||| constructed merge base
+    data_feed['Date'] = pd.to_datetime(pd.Series(sorted(list(stock_data.Date.unique()))))
+
     columns_names = stock_data.columns
     data_feed = pd.DataFrame()
-    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock_data.CalcDateTime.unique()))),
-=======
+    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock_data.CalcDateTime.unique()))))
+
     for stock in stock_data:
         columns_names = stock.columns
-
         data_feed = pd.DataFrame()
-    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock_data.CalcDateTime.unique()))),
->>>>>>> Stashed changes
+    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock.CalcDateTime.unique()))),
                                                infer_datetime_format=True)
     data_feed.index = data_feed['Date']
     data_feed.drop('Date', axis=1, inplace=True)
