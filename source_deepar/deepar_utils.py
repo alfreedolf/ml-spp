@@ -16,14 +16,26 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def deeparize_yfinance(stock_data, stock_symbols, interval, metrices=None):
+def deeparize_yfinance(stock_data, stock_symbols, interval, metrics=None):
     """
     Function that formats Yahoo! Finance stock market data into a format suitable for DeepAR algorithm
     """
 
+<<<<<<< Updated upstream
     columns_names = stock_data.columns
     data_feed = pd.DataFrame()
     data_feed['Date'] = pd.to_datetime(pd.Series(sorted(list(stock_data.Date.unique()))),
+||||||| constructed merge base
+    columns_names = stock_data.columns
+    data_feed = pd.DataFrame()
+    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock_data.CalcDateTime.unique()))),
+=======
+    for stock in stock_data:
+        columns_names = stock.columns
+
+        data_feed = pd.DataFrame()
+    data_feed['CalcDateTime'] = pd.to_datetime(pd.Series(sorted(list(stock_data.CalcDateTime.unique()))),
+>>>>>>> Stashed changes
                                                infer_datetime_format=True)
     data_feed.index = data_feed['Date']
     data_feed.drop('Date', axis=1, inplace=True)
@@ -33,9 +45,9 @@ def deeparize_yfinance(stock_data, stock_symbols, interval, metrices=None):
         mnemonic_data.index = mnemonic_data['Date']
         mnemonic_data = mnemonic_data.sort_index()
         mnemonic_data = mnemonic_data.iloc[:, -6:]
-        if metrices is None:
-            metrices = mnemonic_data.columns.values
-        for col in metrices:
+        if metrics is None:
+            metrics = mnemonic_data.columns.values
+        for col in metrics:
             metric_col = mnemonic_data[col].to_frame()
             metric_col.columns = ["{}-{}".format(mnemonic, col)]
             data_feed = data_feed.add(metric_col, fill_value=0)
@@ -103,7 +115,7 @@ def timeseries_plot(mnemonics, metrics, data=None, interval=None, bucket=None, s
         ax.set_xticklabels(data.index, rotation=90)
 
 
-def json_serialize(data, start, end, target_column, covariate_columns, interval) -> list:
+def json_serialize(data, start, end, target_column, feature_columns, interval) -> list:
     """
     Function that converts input data frames containing time series to JSON serialized data
     Returns a serialized version of input data ready to be processed by DeepAR RNN.
@@ -112,9 +124,9 @@ def json_serialize(data, start, end, target_column, covariate_columns, interval)
     time_series = {}
 
     for i, col in enumerate(data.columns):
-        metric = col[col.find('-') + 1:]
+        feature = col[col.find('-') + 1:]
         stock = col[:col.find('-')]
-        if metric == target_column:
+        if feature == target_column:
             if stock in time_series.keys():
                 time_series[stock]["target"] = data.iloc[:, i][start:end]
             else:
@@ -124,7 +136,7 @@ def json_serialize(data, start, end, target_column, covariate_columns, interval)
                     freq=interval))
                 time_series[stock]["target"] = data.iloc[:, i][start:end]
             print("Time series for {} added".format(stock))
-        elif metric in covariate_columns:
+        elif feature in feature_columns:
             if stock in time_series.keys():
                 if "dynamic_feat" in time_series[stock]:
                     dynamic_feat = time_series[stock]["dynamic_feat"]
@@ -138,7 +150,7 @@ def json_serialize(data, start, end, target_column, covariate_columns, interval)
                 dynamic_feat = []
                 dynamic_feat.append(data.iloc[:, i])
                 time_series[stock]["dynamic_feat"] = dynamic_feat
-            print("Dynamic Feature - {} for {} added".format(metric, stock))
+            print("Dynamic Feature - {} for {} added".format(feature, stock))
         else:
             pass
 
