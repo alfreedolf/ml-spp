@@ -4,6 +4,7 @@
 ######################################################################
 
 import io
+import os
 import math
 import json
 import s3fs
@@ -364,11 +365,11 @@ def __series_to_json_obj(ts, target_column, dyn_feat, start):
     return json_obj
 
 
-def ts2json_serialize(ts, dyn_feat=[], path, fn, start=None):
+def ts2json_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
     json_obj = __series_to_json_obj(ts=ts, target_column='Adj Close',
                                     dyn_feat=dyn_feat, start=start)
-    with open(os.path.join(path, fn), 'w') as fp:
-        json.dump(json_obj, fp).encode("utf-8")
+    with open(os.path.join(saving_path, file_name), 'w') as fp:        
+        json.dump(json_obj, fp)
 
 # Class that allows making requests using pandas Series objects rather than raw JSON strings
 class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
