@@ -316,6 +316,59 @@ def plot(predictor, stock_id, mnemonics, target_ts, target_column, covariate_col
             feat_ts[forecast_date-plot_history:forecast_date+prediction_length].plot(ax=ax, color='g')
     '''
 
+# * new function    
+def __series_to_json_obj(ts, target_column, dyn_feat, start):
+    '''Returns a dictionary of values in DeepAR, JSON format.
+       :param ts: A time series dataframe containing stock prices data features.
+       :param target_column: A single feature time series to be predicted.
+       :return: A dictionary of values with "start", "target" and "dynamic_feat" keys if any.
+       '''
+    # get start time and target from the time series, ts
+    if start is not None:
+        start_index = start
+        ts = ts.loc[start_index:]      
+        
+        if (not dyn_feat):
+            
+            json_obj = {"start": str(pd.to_datetime(start_index)),\
+                        "target": list(ts.loc[:,target_column])}
+        else:
+            # populating dynamic features array
+            df_dyn_feat = ts.loc[:, dyn_feat]
+            dyn_feat_list = []
+            for feat in df_dyn_feat:
+                dyn_feat_list.append(list(df_dyn_feat[feat]))
+            
+            # creating json object    
+            json_obj = {"start": str(pd.to_datetime(start_index)),\
+                        "target": list(ts.loc[:,target_column]),\
+                        "dynamic_feat": list(dyn_feat_list)}
+            
+    else:
+        if (not dyn_feat):
+            json_obj = {"start": str(ts.index[0]),\
+                        "target": list(ts.loc[:,target_column])} 
+            
+        else:
+            # populating dynamic features array
+            df_dyn_feat = ts.loc[:, dyn_feat]
+            dyn_feat_list = []
+            for feat in df_dyn_feat:                
+                dyn_feat_list.append(list(df_dyn_feat[feat]))
+                
+            # creating json object
+            json_obj = {"start": str(ts.index[0]),\
+                        "target": list(ts.loc[:,target_column]),\
+                        "dynamic_feat": list(dyn_feat_list)}
+              
+    return json_obj
+
+
+def ts2json_serialize(ts, dyn_feat=[], path, fn, start=None):
+    json_obj = __series_to_json_obj(ts=ts, target_column='Adj Close',
+                                    dyn_feat=dyn_feat, start=start)
+    with open(os.path.join(path, fn), 'w') as fp:
+        json.dump(json_obj, fp).encode("utf-8")
 
 # Class that allows making requests using pandas Series objects rather than raw JSON strings
 class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
@@ -372,3 +425,5 @@ class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
 
     def set_frequency(self, freq):
         self.freq = freq
+
+
