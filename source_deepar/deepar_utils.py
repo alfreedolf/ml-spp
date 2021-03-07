@@ -318,7 +318,7 @@ def plot(predictor, stock_id, mnemonics, target_ts, target_column, covariate_col
     '''
 
 # * new function    
-def __series_to_json_obj(ts, target_column, dyn_feat, start):
+def series_to_json_obj(ts, target_column, dyn_feat, start):
     '''Returns a dictionary of values in DeepAR, JSON format.
        :param ts: A time series dataframe containing stock prices data features.
        :param target_column: A single feature time series to be predicted.
@@ -366,7 +366,7 @@ def __series_to_json_obj(ts, target_column, dyn_feat, start):
 
 # * new function
 def ts2json_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
-    json_obj = __series_to_json_obj(ts=ts, target_column='Adj Close',
+    json_obj = series_to_json_obj(ts=ts, target_column='Adj Close',
                                     dyn_feat=dyn_feat, start=start)
     with open(os.path.join(saving_path, file_name), 'w') as fp:        
         json.dump(json_obj, fp)
@@ -375,8 +375,61 @@ def ts2json_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
 
 # Class that allows making requests using pandas Series objects rather than raw JSON strings
 class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
+    def set_prediction_parameters(self, freq, prediction_length):
+        """Set the time frequency and prediction length parameters. This method **must** be called
+        before being able to use `predict`.
 
-    def __init__(self, *args, **kwargs):
+        Parameters:
+        freq -- string indicating the time frequency
+        prediction_length -- integer, number of predicted time points
+
+        Return value: none.
+        """
+        self.freq = freq
+        self.prediction_length = prediction_length
+
+    def predict(self, ts, cat=None, encoding="utf-8", num_samples=100, quantiles=["0.1", "0.5", "0.9"], content_type="application/json"):
+        """Requests the prediction of for the time series listed in `ts`, each with the (optional)
+        corresponding category listed in `cat`.
+
+        Parameters:
+        ts -- list of `pandas.Series` objects, the time series to predict
+        cat -- list of integers (default: None)
+        encoding -- string, encoding to use for the request (default: "utf-8")
+        num_samples -- integer, number of samples to compute at prediction time (default: 100)
+        quantiles -- list of strings specifying the quantiles to compute (default: ["0.1", "0.5", "0.9"])
+
+        Return value: list of `pandas.DataFrame` objects, each containing the predictions
+        """
+        prediction_times = [x.index[-1] + pd.Timedelta(1, unit=self.freq) for x in ts]
+        req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
+        res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
+        return self.__decode_response(res, prediction_times, encoding)
+
+    def __encode_request(self, ts, cat, encoding, num_samples, quantiles):
+        instances = [series_to_json_obj(ts[k], target_column='Adj Close',
+                                    dyn_feat=[], start=None) for k in range(len(ts))]
+        configuration = {
+            "num_samples": num_samples,
+            "output_types": ["quantiles"],
+            "quantiles": quantiles,
+        }
+        http_request_data = {"instances": instances, "configuration": configuration}
+        return json.dumps(http_request_data).encode(encoding)
+
+    def __decode_response(self, response, prediction_times, encoding):
+        response_data = json.loads(response.decode(encoding))
+        list_of_df = []
+        for k in range(len(prediction_times)):
+            prediction_index = pd.date_range(
+                start=prediction_times[k], freq=self.freq, periods=self.prediction_length
+            )
+            list_of_df.append(
+                pd.DataFrame(data=response_data["predictions"][k]["quantiles"], index=prediction_index)
+            )
+        return list_of_df
+    
+    '''def __init__(self, *args, **kwargs):
         super().__init__(*args, content_type=sagemaker.content_types.CONTENT_TYPE_JSON, **kwargs)
 
     def predict(self, ts, cat=None, dynamic_feat=None,
@@ -413,6 +466,7 @@ class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
         }
 
         return json.dumps(http_request_data).encode('utf-8')
+    
 
     def __decode_response(self, response, freq, prediction_time, return_samples):
         # we only sent one time series so we only receive one in return
@@ -428,5 +482,5 @@ class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
 
     def set_frequency(self, freq):
         self.freq = freq
-
+    '''
 
