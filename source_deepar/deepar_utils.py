@@ -374,7 +374,7 @@ def ts2json_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
 
 
 # Class that allows making requests using pandas Series objects rather than raw JSON strings
-class DeepARPredictor(sagemaker.predictor.RealTimePredictor):
+class DeepARPredictor(sagemaker.predictor.Predictor):
     def set_prediction_parameters(self, freq, prediction_length):
         """Set the time frequency and prediction length parameters. This method **must** be called
         before being able to use `predict`.
