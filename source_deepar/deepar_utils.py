@@ -365,7 +365,8 @@ def series_to_json_obj(ts, target_column, dyn_feat, start):
     return json_obj
 
 # * new function
-def ts2json_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
+def ts2DeepARjson_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
+    """function that serializes a dataframe containing time series data into a json ready to be processed by DeepAR"""
     json_obj = series_to_json_obj(ts=ts, target_column='Adj Close',
                                     dyn_feat=dyn_feat, start=start)
     with open(os.path.join(saving_path, file_name), 'w') as fp:        
