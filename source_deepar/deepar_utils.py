@@ -438,7 +438,7 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         corresponding category listed in `cat`.
 
         Parameters:
-        start_date -- start date of the future prediction
+        start_times -- start date of the future prediction
         cat -- list of integers (default: None)
         encoding -- string, encoding to use for the request (default: "utf-8")
         num_samples -- integer, number of samples to compute at prediction time (default: 100)
