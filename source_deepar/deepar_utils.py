@@ -22,7 +22,6 @@ def deeparize_yfinance(stock_data, stock_symbols, interval, metrics=None):
     Function that formats Yahoo! Finance stock market data into a format suitable for DeepAR algorithm
     """
 
-
     columns_names = stock_data.columns
     data_feed = pd.DataFrame()
     data_feed['Date'] = pd.to_datetime(pd.Series(sorted(list(stock_data.Date.unique()))))
@@ -317,69 +316,95 @@ def plot(predictor, stock_id, mnemonics, target_ts, target_column, covariate_col
             feat_ts[forecast_date-plot_history:forecast_date+prediction_length].plot(ax=ax, color='g')
     '''
 
-# * new function    
-def series_to_json_obj(ts, target_column, dyn_feat, start):
-    '''Returns a dictionary of values in DeepAR, JSON format.
+
+# * new function
+# TODO check for start value usage
+def series_to_json_obj(ts, target_column, dyn_feat, start=None):
+    """Returns a dictionary of values in DeepAR, JSON format.
+       :param dyn_feat: array of dynamic features
        :param ts: A time series dataframe containing stock prices data features.
        :param target_column: A single feature time series to be predicted.
-       :return: A dictionary of values with "start", "target" and "dynamic_feat" keys if any.
-       '''
+       :param start: A datetime start value to be used as beginning of time series used as prediction context
+       :return: A dictionary of values with "start", "target" and "dynamic_feat" keys if any
+       """
     # get start time and target from the time series, ts
     if start is not None:
         start_index = start
-        ts = ts.loc[start_index:]      
-        
-        if (not dyn_feat):
-            
-            json_obj = {"start": str(pd.to_datetime(start_index)),\
-                        "target": list(ts.loc[:,target_column])}
+        ts = ts.loc[start_index:]
+
+        if not dyn_feat:
+
+            json_obj = {"start": str(pd.to_datetime(start_index)),
+                        "target": list(ts.loc[:, target_column])}
         else:
             # populating dynamic features array
             df_dyn_feat = ts.loc[:, dyn_feat]
             dyn_feat_list = []
             for feat in df_dyn_feat:
                 dyn_feat_list.append(list(df_dyn_feat[feat]))
-            
+
             # creating json object    
-            json_obj = {"start": str(pd.to_datetime(start_index)),\
-                        "target": list(ts.loc[:,target_column]),\
+            json_obj = {"start": str(pd.to_datetime(start_index)),
+                        "target": list(ts.loc[:, target_column]),
                         "dynamic_feat": list(dyn_feat_list)}
-            
+
     else:
-        if (not dyn_feat):
-            json_obj = {"start": str(ts.index[0]),\
-                        "target": list(ts.loc[:,target_column])} 
-            
+        if not dyn_feat:
+            json_obj = {"start": str(ts.index[0]),
+                        "target": list(ts.loc[:, target_column])}
+
         else:
             # populating dynamic features array
             df_dyn_feat = ts.loc[:, dyn_feat]
             dyn_feat_list = []
-            for feat in df_dyn_feat:                
+            for feat in df_dyn_feat:
                 dyn_feat_list.append(list(df_dyn_feat[feat]))
-                
+
             # creating json object
-            json_obj = {"start": str(ts.index[0]),\
-                        "target": list(ts.loc[:,target_column]),\
+            json_obj = {"start": str(ts.index[0]), "target": list(ts.loc[:, target_column]),
                         "dynamic_feat": list(dyn_feat_list)}
-              
+
     return json_obj
 
+
 # * new function
-def ts2DeepARjson_serialize(ts, saving_path, file_name, dyn_feat=[], start=None):
-    """function that serializes a dataframe containing time series data into a json ready to be processed by DeepAR"""
+# TODO check for start value usage
+def future_date_to_json_obj(start_date):
+    """Returns a dictionary of values in DeepAR, JSON format.
+       :param start_date: start date of the json to be produced
+       :return: A json dictionary of values with "start" date and an empty "target" value list.
+       """
+
+    json_obj = {
+        "start": pd.to_datetime(start_date).strftime(format="%Y-%m-%d"),
+        "target": []
+    }
+
+    return json_obj
+
+
+# * new function
+def ts2dar_json(ts, saving_path, file_name, dyn_feat=[], start=None):
+    """
+    Serializes a dataframe containing time series data into a json ready
+    to be processed by DeepAR
+    """
     json_obj = series_to_json_obj(ts=ts, target_column='Adj Close',
-                                    dyn_feat=dyn_feat, start=start)
-    with open(os.path.join(saving_path, file_name), 'w') as fp:        
+                                  dyn_feat=dyn_feat, start=start)
+    with open(os.path.join(saving_path, file_name), 'w') as fp:
         json.dump(json_obj, fp)
-        
 
 
 # Class that allows making requests using pandas Series objects rather than raw JSON strings
 class DeepARPredictor(sagemaker.predictor.Predictor):
+    def __init__(self):
+        self.__freq = 'D'
+        self.__prediction_length = 20
+
     def set_prediction_parameters(self, freq, prediction_length):
         """
         Set the time frequency and prediction length parameters. This method **must** be called
-        before being able to use `predict`.
+        before being able to use `predict`, otherwise, default values of 'D' and `20` wil be used.
 
         Parameters:
         freq -- string indicating the time frequency
@@ -387,10 +412,11 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
 
         Return value: none.
         """
-        self.freq = freq
-        self.prediction_length = prediction_length
+        self.__freq = freq
+        self.__prediction_length = prediction_length
 
-    def predict(self, ts, cat=None, encoding="utf-8", num_samples=100, quantiles=["0.1", "0.5", "0.9"], content_type="application/json"):
+    def predict(self, ts, cat=None, encoding="utf-8", num_samples=100, quantiles=["0.1", "0.5", "0.9"],
+                content_type="application/json"):
         """Requests the prediction of for the time series listed in `ts`, each with the (optional)
         corresponding category listed in `cat`.
 
@@ -403,14 +429,27 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
 
         Return value: list of `pandas.DataFrame` objects, each containing the predictions
         """
-        prediction_times = [x.index[-1] + pd.Timedelta(1, unit=self.freq) for x in ts]
+        prediction_times = [x.index[-1] + pd.Timedelta(1, unit=self.__freq) for x in ts]
         req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
 
-    def __encode_request(self, ts, cat, encoding, num_samples, quantiles):
+    @staticmethod
+    def __encode_request(ts, cat, encoding, num_samples, quantiles):
         instances = [series_to_json_obj(ts[k], target_column='Adj Close',
-                                    dyn_feat=[], start=None) for k in range(len(ts))]
+                                        dyn_feat=[], start=None) for k in range(len(ts))]
+        configuration = {
+            "num_samples": num_samples,
+            "output_types": ["quantiles"],
+            "quantiles": quantiles,
+        }
+        http_request_data = {"instances": instances, "configuration": configuration}
+        return json.dumps(http_request_data).encode(encoding)
+
+    @staticmethod
+    def __encode_future_request(start_times, cat, encoding, num_samples, quantiles):
+        instances = [{"start": st.strftime(format="%Y-%m-%d"), "target": []} for k, st in enumerate(start_times)]
+
         configuration = {
             "num_samples": num_samples,
             "output_types": ["quantiles"],
@@ -424,16 +463,15 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         list_of_df = []
         for k in range(len(prediction_times)):
             prediction_index = pd.date_range(
-                start=prediction_times[k], freq=self.freq, periods=self.prediction_length
+                start=prediction_times[k], freq=self.__freq, periods=self.__prediction_length
             )
             list_of_df.append(
                 pd.DataFrame(data=response_data["predictions"][k]["quantiles"], index=prediction_index)
             )
         return list_of_df
-    
-    
+
     def predict_future(self, start_times, cat=None, encoding="utf-8",
-                       num_samples=100, quantiles=["0.1", "0.5", "0.9"], content_type="application/json"):
+                       num_samples=100, quantiles=["0.1", "0.5", "0.9"], content_type="application/json") -> list:
         """Requests the prediction of future time series values for the time series from `start_date`, each with the (optional)
         corresponding category listed in `cat`.
 
@@ -446,89 +484,7 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
 
         Return value: list of `pandas.DataFrame` objects, each containing the predictions
         """
-        prediction_times = [st + pd.Timedelta(1, unit=self.freq) for st in start_times]
+        prediction_times = [st + pd.Timedelta(1, unit=self.__freq) for st in start_times]
         req = self.__encode_future_request(start_times, cat, encoding, num_samples, quantiles)
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
-    
-    def __encode_future_request(self, start_times, cat, encoding, num_samples, quantiles):
-        
-        instances = [{"start": st.strftime(format="%Y-%m-%d"), "target": []} for k, st in enumerate(start_times)]       
-        
-        configuration = {
-            "num_samples": num_samples,
-            "output_types": ["quantiles"],
-            "quantiles": quantiles,
-        }
-        http_request_data = {"instances": instances, "configuration": configuration}
-        return json.dumps(http_request_data).encode(encoding)
-    
-    
-    '''def __decode_future_response(self, response, prediction_times, encoding):
-        response_data = json.loads(response.decode(encoding))
-        list_of_df = []
-        
-        # TODO fix
-        if copy_index is not None:
-            times = copy_index
-        else:
-            times = prediction_times
-        for k in range(0, times):
-            list_of_df.append(pd.DataFrame(pd.DataFrame(data=response_data["predictions"][k]["quantiles"], index=times[k])))
-        return list_of_df
-    '''
-    '''def __init__(self, *args, **kwargs):
-        super().__init__(*args, content_type=sagemaker.content_types.CONTENT_TYPE_JSON, **kwargs)
-
-    def predict(self, ts, cat=None, dynamic_feat=None,
-                num_samples=100, return_samples=False, quantiles=["0.1", "0.5", "0.9"]):
-        """Requests the prediction of for the time series listed in `ts`, each with the (optional)
-        corresponding category listed in `cat`.
-        
-        ts -- `pandas.Series` object, the time series to predict
-        cat -- integer, the group associated to the time series (default: None)
-        num_samples -- integer, number of samples to compute at prediction time (default: 100)
-        return_samples -- boolean indicating whether to include samples in the response (default: False)
-        quantiles -- list of strings specifying the quantiles to compute (default: ["0.1", "0.5", "0.9"])
-        
-        Return value: list of `pandas.DataFrame` objects, each containing the predictions
-        """
-        prediction_time = ts.index[-1] + 1
-        quantiles = [str(q) for q in quantiles]
-        req = self.__encode_request(ts, cat, dynamic_feat, num_samples, return_samples, quantiles)
-        res = super(DeepARPredictor, self).predict(req)
-        return self.__decode_response(res, ts.index.freq, prediction_time, return_samples)
-
-    def __encode_request(self, ts, cat, dynamic_feat, num_samples, return_samples, quantiles):
-        instance = series_to_dict(ts, cat if cat is not None else None, dynamic_feat if dynamic_feat else None)
-
-        configuration = {
-            "num_samples": num_samples,
-            "output_types": ["quantiles", "samples"] if return_samples else ["quantiles"],
-            "quantiles": quantiles
-        }
-
-        http_request_data = {
-            "instances": [instance],
-            "configuration": configuration
-        }
-
-        return json.dumps(http_request_data).encode('utf-8')
-    
-
-    def __decode_response(self, response, freq, prediction_time, return_samples):
-        # we only sent one time series so we only receive one in return
-        # however, if possible one will pass multiple time series as predictions will then be faster
-        predictions = json.loads(response.decode('utf-8'))['predictions'][0]
-        prediction_length = len(next(iter(predictions['quantiles'].values())))
-        prediction_index = pd.DatetimeIndex(start=prediction_time, freq=freq, periods=prediction_length)
-        if return_samples:
-            dict_of_samples = {'sample_' + str(i): s for i, s in enumerate(predictions['samples'])}
-        else:
-            dict_of_samples = {}
-        return pd.DataFrame(data={**predictions['quantiles'], **dict_of_samples}, index=prediction_index)
-
-    def set_frequency(self, freq):
-        self.freq = freq
-    '''
-
