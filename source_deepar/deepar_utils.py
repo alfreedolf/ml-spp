@@ -397,7 +397,8 @@ def ts2dar_json(ts, saving_path, file_name, dyn_feat=[], start=None):
 
 # Class that allows making requests using pandas Series objects rather than raw JSON strings
 class DeepARPredictor(sagemaker.predictor.Predictor):
-    def __init__(self):
+    def __init__(self, endpoint_name, sagemaker_session):
+        super().__init__(endpoint_name=endpoint_name, sagemaker_session=sagemaker_session)
         self.__freq = 'D'
         self.__prediction_length = 20
 
