@@ -430,13 +430,16 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
 
         Return value: list of `pandas.DataFrame` objects, each containing the predictions
         """
-        prediction_times = [x.index[-1] + pd.Timedelta(1, unit=self.__freq) for x in ts]
+        if isinstance(ts, list):
+            prediction_times = [x.index[-1] + pd.Timedelta(1, unit=self.__freq) for x in ts]
+        else:
+            prediction_times = ts.index[-1] + pd.Timedelta(1, unit=self.__freq)
         req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
 
     @staticmethod
-    def __encode_request(ts, cat, encoding, num_samples, quantiles):
+    def __encode_request(ts, cat, encoding, num_samples, quantiles) -> object:
         instances = [series_to_json_obj(ts[k], target_column='Adj Close',
                                         dyn_feat=[], start=None) for k in range(len(ts))]
         configuration = {
