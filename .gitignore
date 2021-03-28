@@ -144,3 +144,5 @@ aws_cli_cmd.txt
 # trials files
 trials/
 
+# serialized data files
+stock_deepar/
