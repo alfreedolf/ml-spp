@@ -422,7 +422,8 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         corresponding category listed in `cat`.
 
         Parameters:
-        ts -- list of `pandas.Series` objects, the time series to predict
+        ts -- Time series to predict from. Can be either a list of dataframes,
+        a single dataframe or a json S3 file path.
         cat -- list of integers (default: None)
         encoding -- string, encoding to use for the request (default: "utf-8")
         num_samples -- integer, number of samples to compute at prediction time (default: 100)
@@ -432,11 +433,20 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         """
         if isinstance(ts, list):
             prediction_times = [x.index[-1] + pd.Timedelta(1, unit=self.__freq) for x in ts]
-        else:
+            req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
+        elif isinstance(ts, pd.DataFrame):
             prediction_times = ts.index[-1] + pd.Timedelta(1, unit=self.__freq)
-        req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
+            req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
+        elif isinstance(ts, str):
+            # TODO add code to process ts as an S3 path to a json file coded time series
+            req = None
+        else:
+            # TODO add code to
+            req = None
+
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
+
 
     @staticmethod
     def __encode_request(ts, cat, encoding, num_samples, quantiles) -> object:
