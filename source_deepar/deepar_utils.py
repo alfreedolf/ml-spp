@@ -9,6 +9,7 @@ import json
 import pandas as pd
 import sagemaker
 
+
 # * new function
 # TODO check for start value usage
 def series_to_json_obj(ts, target_column, dyn_feat, start=None):
@@ -131,16 +132,38 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
             req = self.__encode_request(ts, cat, encoding, num_samples, quantiles)
         elif isinstance(ts, str):
             # TODO add code to process ts as an S3 path to a json file coded time series
+            if ts.upper() == 'IBM':
+                # TODO add code to feed predictor with IBM data starting from last value of test set
+                pass
+            elif ts.upper() == 'AAPL':
+                # TODO add code to feed predictor with AAPL data starting from last value of test set
+                pass
+            elif ts.upper() == 'AMZN':
+                # TODO add code to feed predictor with AMZN data starting from last value of test set
+                pass
+            elif ts.upper() == 'GOOGL':
+                # TODO add code to feed predictor with GOOGL data starting from last value of test set
+                pass
+            else:
+                pass
             req = None
         else:
-            # TODO add code to
+            # TODO add code to handle error in input format
             req = None
 
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
 
-    @staticmethod
     def __encode_request(ts, cat, encoding, num_samples, quantiles) -> object:
+        """
+        This function encodes a json request for the endpoint, that accepts
+        :param ts: time series to be predicted
+        :param cat: categorical features
+        :param encoding: encoding to be used
+        :param num_samples: number of samples to be used by DeepAR
+        :param quantiles: list of quantiles to be used by
+        :return:
+        """
         instances = [series_to_json_obj(ts[k], target_column='Adj Close',
                                         dyn_feat=[], start=None) for k in range(len(ts))]
         configuration = {
@@ -193,3 +216,4 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         req = self.__encode_future_request(start_times, cat, encoding, num_samples, quantiles)
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
+
