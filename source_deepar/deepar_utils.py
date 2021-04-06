@@ -60,7 +60,6 @@ def series_to_json_obj(ts, target_column, dyn_feat, start=None):
     return json_obj
 
 
-# * new function
 # TODO check for start value usage
 def future_date_to_json_obj(start_date):
     """Returns a dictionary of values in DeepAR, JSON format.
@@ -76,7 +75,6 @@ def future_date_to_json_obj(start_date):
     return json_obj
 
 
-# * new function
 def ts2dar_json(ts, saving_path, file_name, dyn_feat=[], start=None):
     """
     Serializes a dataframe containing time series data into a json ready
@@ -154,6 +152,7 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
 
+    @staticmethod
     def __encode_request(ts, cat, encoding, num_samples, quantiles) -> object:
         """
         This function encodes a json request for the endpoint, that accepts
@@ -216,4 +215,3 @@ class DeepARPredictor(sagemaker.predictor.Predictor):
         req = self.__encode_future_request(start_times, cat, encoding, num_samples, quantiles)
         res = super(DeepARPredictor, self).predict(req, initial_args={"ContentType": content_type})
         return self.__decode_response(res, prediction_times, encoding)
-
