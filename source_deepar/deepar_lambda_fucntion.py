@@ -7,50 +7,43 @@ import os
 
 
 def lambda_handler(event, context):
-    # sagemaker session retrieve:
-    # TODO: check if it's feasible to retrieve SageMaker session from here
-    sagemaker = boto3.client('sagemaker')
-    sagemaker_session = sagemaker.Session()
-    # S3 resource invocation
-    resource = boto3.resource('s3')
-    # S3 bucket selection
 
-    bucket = "stock-prediction-data-4327a669-7f13-48c7-aa4a-49a80b9e1e32"
+    # S3 resource invocation
+    s3_resource = boto3.resource('s3')
+    # S3 bucket selection
+    data_bucket_name = "stock-prediction-data-4327a669-7f13-48c7-aa4a-49a80b9e1e32"
 
     # The SageMaker runtime is what allows us to invoke the endpoint that we've created.
     runtime = boto3.Session().client('sagemaker-runtime')
 
-    # >> Something
-    json_data = get_json_stock_data(event['ticker_name'], resource, bucket)
     # Now we use the SageMaker runtime to invoke our endpoint, sending the review we were given
     response = runtime.invoke_endpoint(EndpointName='DeepAR-ml-spp',  # The name of the endpoint we created
                                        ContentType='application/json',  # The data format that is expected
-                                       Body=encode_request(json_data,
-                                                           event['start_date']))  # The actual prediction requeste
+                                       Body=encode_request(event['ticker_name'], s3_resource, data_bucket_name))
 
     # The response is an HTTP response whose body contains the result of our inference
     result = response['Body'].read().decode('utf-8')
 
-    # Round the result so that our web app only gets '1' or '0' as a response.
-    result = round(float(result))
+    # TODO: print data for debug purposes
+    print(result)
 
     return {
         'statusCode': 200,
-        'headers': {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'},
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
         'body': str(result)
     }
 
 
-def encode_request(ticker_name, start_date, s3_path):
+def encode_request(ticker_name, s3_resource, s3_bucket):
     """
-    Encodes a request to be fed to the SageMaker endpoing
-    :param s3_path: where to find json data on S3
+    Encodes a request to be fed to the SageMaker endpoint
+    :param s3_bucket: S3 bucket where to find json data
+    :param s3_resource: s3 resource where the data is located
     :param ticker_name: a string indicating which stock has to be predicted.
                         Possible values: 'IBM', 'AAPL', 'AMZN', 'GOOGL'.
-    :param start_date: start date from which to predict from
     :return: a json object containing a request ready to be sent to the endpoint
     """
-    instances = [get_json_stock_data(ticker_name, start_date, s3_path)]
+    instances = [get_json_stock_data(ticker_name, s3_resource=s3_resource, s3_bucket=s3_bucket)]
     configuration = {
         "num_samples": 100,
         "output_types": ["quantiles"],
