@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     # Now we use the SageMaker runtime to invoke our endpoint, sending the review we were given
     response = runtime.invoke_endpoint(EndpointName='DeepAR-ml-spp',  # The name of the endpoint we created
                                        ContentType='application/json',  # The data format that is expected
-                                       Body=encode_request(event['ticker_name'], s3_resource, data_bucket_name))
+                                       Body=encode_request(event['body'], s3_resource, data_bucket_name))
 
     # The response is an HTTP response whose body contains the result of our inference
     result = response['Body'].read().decode('utf-8')
@@ -123,7 +123,6 @@ def get_json_stock_data(ticker_name, s3_resource, s3_bucket):
     :param s3_bucket: the S3 bucket containing the files to be
     :param s3_resource: the S3 resource to be used to access the file
     :param ticker_name: ticker name, one among IBM, AAPL, AMZN, GOOGL
-    :param s3_path: a string indicating where to find the json file on S3
     :return:
     """
     if ticker_name.upper() == "IBM":
