@@ -1,4 +1,8 @@
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+
+import base64
+from io import BytesIO
 
 
 def display_quantiles(prediction, target_ts=None, bench_mark_prediction=None, bench_mark_prediction_name=None):
@@ -8,8 +12,6 @@ def display_quantiles(prediction, target_ts=None, bench_mark_prediction=None, be
     plt.figure(figsize=(12, 6))
     # get the target month of data
     if target_ts is not None:
-        # target = target_ts[:]
-        # plt.plot(range(len(target)), target, label='target')
         target_ts.plot()
     # get the quantile values at 10 and 90%
     p10 = prediction['0.1']
@@ -22,3 +24,28 @@ def display_quantiles(prediction, target_ts=None, bench_mark_prediction=None, be
         bench_mark_prediction.plot(label=bench_mark_prediction_name, color='r')
     plt.legend()
     plt.show()
+
+def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=None, bench_mark_prediction_name=None):
+    """
+    Show predictions for input time series against comparison values in a Flask application
+    """
+    fig = Figure()
+    ax = fig.subplots()
+    if target_ts is not None:
+        ax.plot(target_ts)
+    # get the quantile values at 10 and 90%
+    p10 = prediction['0.1']
+    p90 = prediction['0.9']
+    # fill the 80% confidence interval
+    ax.fill_between(p10.index, p10, p90, color='y', alpha=0.5, label='80% confidence interval')
+    # plot the median prediction line
+    ax.plot(prediction['0.5'], label='prediction median')
+    if bench_mark_prediction is not None:
+        ax.plot(bench_mark_prediction, label=bench_mark_prediction_name, color='r')
+    
+    # Save it to a temporary buffer.
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+    # Embed the result in the html output.
+    data = base64.b64encode(buf.getbuffer()).decode("ascii")
+    return f"<img src='data:image/png;base64,{data}'/>"
