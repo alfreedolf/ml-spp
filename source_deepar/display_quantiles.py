@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-
+import numpy as np
 import base64
 from io import BytesIO
 
@@ -34,12 +34,14 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
     if target_ts is not None:
         ax.plot(target_ts)
     # get the quantile values at 10 and 90%
-    p10 = prediction['0.1']
-    p90 = prediction['0.9']
+    p10 = np.array(prediction['0.1'], dtype=float)
+    p50 = np.array(prediction['0.5'], dtype=float)
+    p90 = np.array(prediction['0.9'], dtype=float)
+    
     # fill the 80% confidence interval
-    ax.fill_between(p10.index, p10, p90, color='y', alpha=0.5, label='80% confidence interval')
+    ax.fill_between(range(0, len(p10)), p10, p90, color='y', alpha=0.5, label='80% confidence interval')
     # plot the median prediction line
-    ax.plot(prediction['0.5'], label='prediction median')
+    ax.plot(p50, label='prediction median')
     if bench_mark_prediction is not None:
         ax.plot(bench_mark_prediction, label=bench_mark_prediction_name, color='r')
     
@@ -48,4 +50,5 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
     fig.savefig(buf, format="png")
     # Embed the result in the html output.
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return f"<img src='data:image/png;base64,{data}'/>"
+    data_str = f"<img src='data:image/png;base64,{data}'/>"
+    return data_str
