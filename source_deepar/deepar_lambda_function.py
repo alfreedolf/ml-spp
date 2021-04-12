@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     # The response is an HTTP response whose body contains the result of our inference
     result = response['Body'].read().decode('utf-8')
 
-    # TODO: print data for debug purposes
+    # print data for debug purposes
     print(result)
 
     return {
