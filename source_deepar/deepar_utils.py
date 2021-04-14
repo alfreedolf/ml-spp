@@ -26,15 +26,15 @@ def series_to_json_obj(ts, target_column, dyn_feat, start=None):
         ts = ts.loc[start_index:]
 
         if not dyn_feat:
-
-            json_obj = {"start": str(pd.to_datetime(start_index)),
-                        "target": list(ts.loc[:, target_column])}
+            if isinstance(ts, pd.DataFrame):
+                json_obj = {"start": str(pd.to_datetime(start_index)),
+                            "target": list(ts.loc[:, target_column])}
+            elif isinstance(ts, pd.Series):
+                json_obj = {"start": str(pd.to_datetime(start_index)),
+                            "target": list(ts.values)}
         else:
             # populating dynamic features array
-            df_dyn_feat = ts.loc[:, dyn_feat]
-            dyn_feat_list = []
-            for feat in df_dyn_feat:
-                dyn_feat_list.append(list(df_dyn_feat[feat]))
+            dyn_feat_list = generate_dyn_feat_list(dyn_feat, ts)
 
             # creating json object    
             json_obj = {"start": str(pd.to_datetime(start_index)),
@@ -43,21 +43,30 @@ def series_to_json_obj(ts, target_column, dyn_feat, start=None):
 
     else:
         if not dyn_feat:
-            json_obj = {"start": str(ts.index[0]),
-                        "target": list(ts.loc[:, target_column])}
+            if isinstance(ts, pd.DataFrame):
+                json_obj = {"start": str(ts.index[0]),
+                            "target": list(ts.loc[:, target_column])}
+            elif isinstance(ts, pd.Series):
+                json_obj = {"start": str(ts.index[0]),
+                            "target": list(ts.values)}
 
         else:
             # populating dynamic features array
-            df_dyn_feat = ts.loc[:, dyn_feat]
-            dyn_feat_list = []
-            for feat in df_dyn_feat:
-                dyn_feat_list.append(list(df_dyn_feat[feat]))
+            dyn_feat_list = generate_dyn_feat_list(dyn_feat, ts)
 
             # creating json object
             json_obj = {"start": str(ts.index[0]), "target": list(ts.loc[:, target_column]),
                         "dynamic_feat": list(dyn_feat_list)}
 
     return json_obj
+
+
+def generate_dyn_feat_list(dyn_feat, ts):
+    df_dyn_feat = ts.loc[:, dyn_feat]
+    dyn_feat_list = []
+    for feat in df_dyn_feat:
+        dyn_feat_list.append(list(df_dyn_feat[feat]))
+    return dyn_feat_list
 
 
 # TODO check for start value usage
@@ -80,8 +89,12 @@ def ts2dar_json(ts, saving_path, file_name, dyn_feat=[], start=None):
     Serializes a dataframe containing time series data into a json ready
     to be processed by DeepAR
     """
-    json_obj = series_to_json_obj(ts=ts, target_column='Adj Close',
-                                  dyn_feat=dyn_feat, start=start)
+    if isinstance(ts, pd.DataFrame):
+        json_obj = series_to_json_obj(ts=ts, target_column='Adj Close',
+                                      dyn_feat=dyn_feat, start=start)
+    elif isinstance(ts, pd.Series):
+        json_obj = series_to_json_obj(ts=ts, start=start)
+
     with open(os.path.join(saving_path, file_name), 'w') as fp:
         json.dump(json_obj, fp)
 
