@@ -12,7 +12,6 @@ def lambda_handler(event, context):
     s3_resource = boto3.resource('s3')
     # S3 bucket selection
     data_bucket_name = "stock-prediction-data-4327a669-7f13-48c7-aa4a-49a80b9e1e32"
-
     # The SageMaker runtime is what allows us to invoke the endpoint that we've created.
     runtime = boto3.Session().client('sagemaker-runtime')
 
@@ -117,21 +116,22 @@ def get_googl_json_from_s3(s3_resource, bucket_name, prefix=''):
     return json_content
 
 
-def get_json_stock_data(ticker_name, s3_resource, s3_bucket):
+def get_json_stock_data(ticker_name, s3_resource, s3_bucket, prefix=''):
     """
     Retrieves json data from S3
     :param s3_bucket: the S3 bucket containing the files to be
     :param s3_resource: the S3 resource to be used to access the file
     :param ticker_name: ticker name, one among IBM, AAPL, AMZN, GOOGL
+    :param prefix: the folder where the file is located inside the S3 bucket
     :return:
     """
     if ticker_name.upper() == "IBM":
-        return get_ibm_json_from_s3(s3_resource, s3_bucket)
+        return get_ibm_json_from_s3(s3_resource, s3_bucket, prefix)
     elif ticker_name.upper() == "AMZN":
-        return get_amzn_json_from_s3(s3_resource, s3_bucket)
+        return get_amzn_json_from_s3(s3_resource, s3_bucket, prefix)
     elif ticker_name.upper() == "AAPL":
-        return get_aapl_json_from_s3(s3_resource, s3_bucket)
+        return get_aapl_json_from_s3(s3_resource, s3_bucket, prefix)
     elif ticker_name.upper() == "GOOGL":
-        return get_googl_json_from_s3(s3_resource, s3_bucket)
+        return get_googl_json_from_s3(s3_resource, s3_bucket, prefix)
     else:
         return None
