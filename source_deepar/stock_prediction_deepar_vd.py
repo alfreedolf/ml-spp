@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     response = runtime.invoke_endpoint(EndpointName='DeepAR-ml-spp',  # The name of the endpoint we created
                                        ContentType='application/json',  # The data format that is expected
                                        Body=encode_request(event['body'], s3_resource,
-                                                           data_bucket_name, event['path']))
+                                                           data_bucket_name, 'valid'))
 
     # The response is an HTTP response whose body contains the result of our inference
     result = response['Body'].read().decode('utf-8')
@@ -62,13 +62,13 @@ def encode_request(ticker_name, s3_resource, s3_bucket, data_source):
     return json.dumps(http_request_data).encode("utf-8")
 
 
-def get_ibm_json_from_s3(s3_resource, bucket_name, prefix=''):
+def get_ibm_adj_cls_from_s3(s3_resource, bucket_name, prefix=''):
     """
-    Load IBM stock json data from S3 resource
+    Load IBM stock json serialized data from S3 resource
     :param prefix: prefix of the path where the file is located
     :param s3_resource: s3 resource to get data from
     :param bucket_name: s3 bucket to get data from
-    :return: json object containing IBM stock price adjusted close
+    :return: dict object containing IBM stock price adjusted close from S3 archived JSON
     """
     ibm_filename = "IBM.json"
     complete_path = os.path.join(prefix, ibm_filename)
@@ -78,13 +78,13 @@ def get_ibm_json_from_s3(s3_resource, bucket_name, prefix=''):
     return json_content
 
 
-def get_amzn_json_from_s3(s3_resource, bucket_name, prefix=''):
+def get_amazon_adj_cls_from_s3(s3_resource, bucket_name, prefix=''):
     """
-    Load AMZN stock json data from S3 resource
+    Load IBM stock json serialized data from S3 resource
     :param prefix: prefix of the path where the find will be placed
     :param s3_resource: s3 resource to get data from
     :param bucket_name: s3 bucket to get data from
-    :return: json object containing IBM stock price adjusted close
+    :return: dict object containing AMZN stock price adjusted close from S3 archived JSON
     """
     amzn_filename = "AMZN.json"
     complete_path = os.path.join(prefix, amzn_filename)
@@ -94,9 +94,9 @@ def get_amzn_json_from_s3(s3_resource, bucket_name, prefix=''):
     return json_content
 
 
-def get_aapl_json_from_s3(s3_resource, bucket_name, prefix=''):
+def get_apple_adj_cls_from_s3(s3_resource, bucket_name, prefix=''):
     """
-    Load AAPL stock json data from S3 resource
+    Load Apple Inc. stock json serialized data from S3 resource
     :param prefix: prefix of the path where the file is located
     :param s3_resource: s3 resource to get data from
     :param bucket_name: s3 bucket to get data from
@@ -110,9 +110,9 @@ def get_aapl_json_from_s3(s3_resource, bucket_name, prefix=''):
     return json_content
 
 
-def get_googl_json_from_s3(s3_resource, bucket_name, prefix=''):
+def get_google_adj_cls_from_s3(s3_resource, bucket_name, prefix=''):
     """
-    Load GOOGL stock json data from S3 resource
+    Load Alphabet Inc. stock json serialized data from S3 resource
     :param prefix: prefix of the path where the file is located
     :param s3_resource: s3 resource to get data from
     :param bucket_name: s3 bucket to get data from
@@ -128,7 +128,7 @@ def get_googl_json_from_s3(s3_resource, bucket_name, prefix=''):
 
 def get_stock_data(ticker_name, s3_resource, s3_bucket, prefix=''):
     """
-    Retrieves json data from S3
+    Retrieves adjusted close data from S3
     :param s3_bucket: the S3 bucket containing the files to be
     :param s3_resource: the S3 resource to be used to access the file
     :param ticker_name: ticker name, one among IBM, AAPL, AMZN, GOOGL
@@ -136,13 +136,13 @@ def get_stock_data(ticker_name, s3_resource, s3_bucket, prefix=''):
     :return: dictionary data about the ticker_name stock, retrieved from an S3 resident JSON file.
     """
     if ticker_name.upper() == "IBM":
-        return get_ibm_json_from_s3(s3_resource, s3_bucket, prefix)
+        return get_ibm_adj_cls_from_s3(s3_resource, s3_bucket, prefix)
     elif ticker_name.upper() == "AMZN":
-        return get_amzn_json_from_s3(s3_resource, s3_bucket, prefix)
+        return get_amazon_adj_cls_from_s3(s3_resource, s3_bucket, prefix)
     elif ticker_name.upper() == "AAPL":
-        return get_aapl_json_from_s3(s3_resource, s3_bucket, prefix)
+        return get_apple_adj_cls_from_s3(s3_resource, s3_bucket, prefix)
     elif ticker_name.upper() == "GOOGL":
-        return get_googl_json_from_s3(s3_resource, s3_bucket, prefix)
+        return get_google_adj_cls_from_s3(s3_resource, s3_bucket, prefix)
     else:
         # TODO: add error handling
         return None
