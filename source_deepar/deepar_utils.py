@@ -12,7 +12,7 @@ import sagemaker
 
 # * new function
 # TODO check for start value usage
-def series_to_json_obj(ts, target_column, dyn_feat, start=None):
+def series_to_json_obj(ts, target_column=None, dyn_feat=None, start=None):
     """Returns a dictionary of values in DeepAR, JSON format.
        :param dyn_feat: array of dynamic features
        :param ts: A time series dataframe containing stock prices data features.
