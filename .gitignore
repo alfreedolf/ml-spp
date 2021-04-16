@@ -146,3 +146,4 @@ trials/
 
 # serialized data files
 stock_deepar/
+/source_deepar/ibmRequest.json

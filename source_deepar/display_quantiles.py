@@ -6,9 +6,13 @@ from io import BytesIO
 from datetime import datetime, timedelta
 
 
-def display_quantiles(prediction, target_ts=None, bench_mark_prediction=None, bench_mark_prediction_name=None):
+def display_quantiles(prediction, target_ts=None, benchmark_prediction=None, benchmark_prediction_name=None):
     """
     Show predictions for input time series against comparison values
+    :param prediction:
+    :param target_ts:
+    :param benchmark_prediction:
+    :param benchmark_prediction_name:
     """
     plt.figure(figsize=(12, 6))
     # get the target month of data
@@ -21,16 +25,22 @@ def display_quantiles(prediction, target_ts=None, bench_mark_prediction=None, be
     plt.fill_between(p10.index, p10, p90, color='y', alpha=0.5, label='80% confidence interval')
     # plot the median prediction line
     prediction['0.5'].plot(label='prediction median')
-    if bench_mark_prediction is not None:
-        bench_mark_prediction.plot(label=bench_mark_prediction_name, color='r')
+    if benchmark_prediction is not None:
+        benchmark_prediction.plot(label=benchmark_prediction_name, color='r')
     plt.legend()
     plt.show()
 
 
-def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=None, bench_mark_prediction_name=None,
-                            start=None, frequency=None):
+def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=None,
+                            bench_mark_prediction_name=None, start=None):
     """
     Show predictions for input time series against comparison values in a Flask application
+    :param prediction:
+    :param target_ts:
+    :param bench_mark_prediction:
+    :param bench_mark_prediction_name:
+    :param start:
+    :return: a <img> HTML5 element containing the plot
     """
 
     fig = Figure()
@@ -44,9 +54,9 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
         elif isinstance(start, datetime.date):
             starte_date = start
         else:
-             print("Enter only string or date as start values")
-        xticks = [start_date + x*timedelta(days=1) for x in range(len(target_ts))]
-        ax.set_xticklabels(["{}/{}".format(xtick.day, xtick.month) for xtick in xticks])
+            print("Enter only string or date as start values")
+        x_ticks = [start_date + x * timedelta(days=1) for x in range(len(target_ts))]
+        ax.set_xticklabels(["{}/{}".format(x_tick.day, x_tick.month) for x_tick in x_ticks])
     if target_ts is not None:
         ax.plot(target_ts)
     # get the quantile values at 10 and 90%
