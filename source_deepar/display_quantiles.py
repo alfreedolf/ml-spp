@@ -58,7 +58,8 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
         x_ticks = [start_date + x * timedelta(days=1) for x in range(len(target_ts))]
         ax.set_xticklabels(["{}/{}".format(x_tick.day, x_tick.month) for x_tick in x_ticks])
     if target_ts is not None:
-        ax.plot(target_ts)
+        ax.plot(target_ts, label='real Adjusted Close')
+
     # get the quantile values at 10 and 90%
     p10 = np.array(prediction['0.1'], dtype=float)
     p50 = np.array(prediction['0.5'], dtype=float)
@@ -66,14 +67,21 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
 
     # fill the 80% confidence interval
     ax.fill_between(range(0, len(p10)), p10, p90, color='y', alpha=0.5, label='80% confidence interval')
+
     # plot the median prediction line
     ax.plot(p50, label='prediction median')
+
+    # plot benchmark data
     if bench_mark_prediction is not None:
         ax.plot(bench_mark_prediction, label=bench_mark_prediction_name, color='r')
+
+    # adding legend
+    ax.legend()
 
     # Save it to a temporary buffer.
     buf = BytesIO()
     fig.savefig(buf, format="png")
+
     # Embed the result in the html output.
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     data_str = f"<img src='data:image/png;base64,{data}'/>"
