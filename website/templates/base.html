@@ -5,19 +5,23 @@
     <title>Stock Prices Prediction Web App</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <!-- bootstrap stylesheet -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    
+
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    
+
     <!-- bootstrap script -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    
-    <!--form submission script-->
-    <script type="text/javascript" src="{{ url_for('static', filename='sbtStockPredReq.js') }}">"use strict";</script>    </head>
-    <body>
+
+    <!--form submission scripts-->
+    <script type="text/javascript" src="{{ url_for('static', filename='sbtStockPredReq.js') }}">"use strict";</script>
+    <script type="text/javascript" src="{{ url_for('static', filename='formControl.js') }}">"use strict";</script>
+</head>
+
+<body>
+
 
     <div class="container">
         <h1>Stock Price Prediction</h1>
@@ -33,11 +37,19 @@
                     <option value="AMZN">Amazon.com</option>
                     <option value="GOOGL">Alphabet Inc.</option>
                 </select>
+                <label for="predict_from_date"></label>
+                <input type="checkbox" id="predict_from_date" name="predict_from_date" onclick="controlCalendar()">
+                
+
+                <label for="start_date_picker">Choose a start date for predictions</label>
+                <input type="date" id="start_date_picker" name="start_date_picker"/>
             </div>
             <button type="submit" class="btn btn-default">Predict</button>
         </form>
+
+
         <p id="result"></p>
     </div>
-    </body>
+</body>
 
 </html>
