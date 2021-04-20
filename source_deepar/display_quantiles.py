@@ -55,7 +55,7 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
             starte_date = start
         else:
             print("Enter only string or date as start values")
-        x_ticks = [start_date + x * timedelta(days=1) for x in range(len(target_ts))]
+        x_ticks = [start_date + x * timedelta(days=1) for x in range(len(prediction['0.5']))]
         ax.set_xticklabels(["{}/{}".format(x_tick.day, x_tick.month) for x_tick in x_ticks])
     if target_ts is not None:
         ax.plot(target_ts, label='real Adjusted Close')
