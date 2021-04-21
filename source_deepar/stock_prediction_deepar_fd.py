@@ -1,5 +1,5 @@
 r"""
-Stock prediction by means of DeepAR model, using validation dataset
+Stock prediction by means of DeepAR model, from a future date
 """
 # We need to use the low-level library to interact with SageMaker since the SageMaker API
 # is not available natively through Lambda.
@@ -18,6 +18,7 @@ def lambda_handler(event, context):
     :param context: the context where the event has been triggered
     :return: a json formatted response from SageMaker ML model endpoint.
     """
+
     # S3 resource invocation
     s3_resource = boto3.resource('s3')
     # S3 bucket selection
@@ -28,8 +29,8 @@ def lambda_handler(event, context):
     # Now we use the SageMaker runtime to invoke our endpoint, sending the review we were given
     response = runtime.invoke_endpoint(EndpointName='DeepAR-ml-spp',  # The name of the endpoint we created
                                        ContentType='application/json',  # The data format that is expected
-                                       Body=encode_request(event['body'], s3_resource,
-                                                           data_bucket_name, 'valid'))
+                                       Body=encode_request(request_body=event['body'], s3_resource=s3_resource,
+                                                           s3_bucket=data_bucket_name, prefix='valid'))
 
     # The response is an HTTP response whose body contains the result of our inference
     result = response['Body'].read().decode('utf-8')
@@ -44,24 +45,24 @@ def lambda_handler(event, context):
     }
 
 
-def encode_request(ticker_name, s3_resource, s3_bucket, data_source):
+def encode_request(request_body, s3_resource, s3_bucket, prefix) -> bytes:
     """
-    Encodes a request to be fed to the SageMaker endpoint
-    :param s3_bucket: S3 bucket where to find json data
-    :param s3_resource: s3 resource where the data is located
-    :param ticker_name: a string indicating which stock has to be predicted.
-                        Possible values: 'IBM', 'AAPL', 'AMZN', 'GOOGL'.
-    :param data_source: data source to be used for prediction (test, validation, etc.)
-    :return: a json string containing a request ready to be sent to the endpoint
+    Encodes a request to be fed to the SageMaker endpoint from a start date on
+    :return: a json object containing a request ready to be sent to the endpoint
     """
-    instances = [get_stock_data(ticker_name, s3_resource=s3_resource,
-                                s3_bucket=s3_bucket, prefix=data_source)]
+
+    request_json = json.loads(request_body)
+    start_date = request_json['start_date']
+    ticker_name = request_json['ticker_name']
+    target_data = get_stock_data(ticker_name=ticker_name, s3_resource=s3_resource, s3_bucket=s3_bucket, prefix=prefix)['target']
+    instance = [{"start": start_date, "target": target_data}]
+
     configuration = {
         "num_samples": 100,
         "output_types": ["quantiles"],
         "quantiles": ["0.1", "0.5", "0.9"],
     }
-    http_request_data = {"instances": instances, "configuration": configuration}
+    http_request_data = {"instances": instance, "configuration": configuration}
     return json.dumps(http_request_data).encode("utf-8")
 
 

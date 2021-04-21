@@ -15,7 +15,7 @@ def home():
 
 
 @app.route('/predict', methods=['POST'])
-def predict_from_data():
+def predict():
     # retrieving data to be used as ground truth
     ticker_name = request.form['ticker_name']
     req_dataset = request.form['dataset']
@@ -28,7 +28,7 @@ def predict_from_data():
     bk_dict = get_stock_data_from_s3_bucket(ticker_name, 'benchmark')
     benchmark_ts = bk_dict['target']
 
-    # retrieving data to be used for prediction
+    # retrieving predicted data to be plot togheter with above data
     js_pred_data = request.form['predicted_data']
     pred_dict = json.loads(js_pred_data)['predictions']
     quantiles_dict = pred_dict[0]['quantiles']
@@ -36,6 +36,21 @@ def predict_from_data():
     # displaying quantiles graph
     qp = display_quantiles_flask(quantiles_dict, target_ts=target_ts, bench_mark_prediction=benchmark_ts,
                                  bench_mark_prediction_name='SMA', start=start_date)
+    return qp
+
+@app.route('/predict_future', methods=['POST'])
+def predict_future():
+
+    # retrieving start date
+    start_date = request.form['start_date']
+
+    # retrieving predicted data to be plot togheter with above data
+    js_pred_data = request.form['predicted_data']
+    pred_dict = json.loads(js_pred_data)['predictions']
+    quantiles_dict = pred_dict[0]['quantiles']
+
+    # displaying quantiles graph
+    qp = display_quantiles_flask(quantiles_dict, start=start_date+" {}:{}:{}".format("00", "00", "00"))
     return qp
 
 

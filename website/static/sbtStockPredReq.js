@@ -22,10 +22,12 @@ function submitForm(oFormElement) {
     };
 
     xhr.open(oFormElement.method, oFormElement.action, true);
-    // var stock = document.getElementById('stock');
+    var ticker_name = document.getElementById('stock');
     var start_date = document.getElementById('start_date_picker');
-    // send POST request with requested stock ticket to AWS API Gateway
-    // xhr.send(stock.value);
-    xhr.send(start_date_picker.value)
+    // TODO: put an if to control eventual null start date
+    var request_body = "{\"ticker_name\":\""+String(ticker_name.value)+"\", \"start_date\":\""+String(start_date.value)+"\"}"
+    alert(request_body)
+    // send POST request with requested stock ticker name and requested start date to AWS API Gateway
+    xhr.send(request_body)
     return false;
 }
