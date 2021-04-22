@@ -1,5 +1,6 @@
 function submitForm(oFormElement) {
     var xhr = new XMLHttpRequest();
+    var start_date = document.getElementById('start_date_picker');
     // alert(xhr);
     xhr.onload = function () {
         // alert("let's go!");
@@ -15,18 +16,37 @@ function submitForm(oFormElement) {
         $.ajaxSetup({ async: false });
         // POST request to Flask App
         // alert(stock.value);
+        var flaskPostRequest;
+        // alert(start_date.value)
+        if (start_date.value !== "")
+        {
+            flaskPostRequest = $.post("/predict_future", { start_date: start_date_picker.value, predicted_data: result });
+        }
+        else
+        {
+            flaskPostRequest = $.post("/predict", { ticker_name: stock.value, predicted_data: result, dataset: 'valid' });
+        }
         // var flaskPostRequest = $.post("/predict", { ticker_name: stock.value, predicted_data: result, dataset: 'valid' });
-        var flaskPostRequest = $.post("/predict_future", { start_date: start_date_picker.value, predicted_data: result });
+        
         // writing response data into HTML 
         resultElement.innerHTML = flaskPostRequest.responseText;
     };
 
     xhr.open(oFormElement.method, oFormElement.action, true);
-    var ticker_name = document.getElementById('stock');
-    var start_date = document.getElementById('start_date_picker');
+    let ticker_name = document.getElementById('stock');
+    
     // TODO: put an if to control eventual null start date
-    var request_body = "{\"ticker_name\":\""+String(ticker_name.value)+"\", \"start_date\":\""+String(start_date.value)+"\"}"
-    alert(request_body)
+    var request_body;
+    if (start_date !== null)
+    {
+        request_body = "{\"ticker_name\":\""+String(ticker_name.value)+"\", \"start_date\":\""+String(start_date.value)+"\"}"
+    }
+    else
+    {
+        request_body = "{\"ticker_name\":\""+String(ticker_name.value)+"\", \"start_date\":\"\"}"
+    }
+    
+    // alert(request_body)
     // send POST request with requested stock ticker name and requested start date to AWS API Gateway
     xhr.send(request_body)
     return false;
