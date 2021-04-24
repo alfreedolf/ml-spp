@@ -1,13 +1,15 @@
-# This file contains data utility to slice input data
+# This file contains data utility to slice input data.
+# The slicing has been optimized to comply to DeepAR algorithm best practices
+# as in https://docs.aws.amazon.com/sagemaker/latest/dg/deepar.html
 
 def train_test_valid_split(ts, prediction_length):
     """
-
     This function slices input Time Series ts into train, test and validation set with the following ratio:
     * Training set will start at the beginning of the input time series and is truncated right before
-    3*prediction_length elements from the end.
-    * Test set will start from the 3*prediction_length from the end and stops leaving exactly prediction_length elements
-    to the end of the input time series. Hence, it will be exactly 2*prediction_length elements long.
+        2*prediction_length elements from the end.
+    * Test set will start from the beginning of the time series and stops at exactly prediction_length elements
+        from the end of the input time series. Hence, it will include the training set and it will add exactly
+        prediction_length more to it.
     * Validation set will be the last prediction_length elements from the input time series.
 
     :param ts: Time series to be predicted
