@@ -31,7 +31,7 @@ Here follows project structure:
 
 ## License file
 Currently, under MIT license.\
-[LICENCE](LICENCE)
+[LICENSE](LICENSE)
 
 ## Project report
 [ProjectReport.pdf](ProjectReport.pdf)
