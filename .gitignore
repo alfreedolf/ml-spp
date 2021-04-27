@@ -143,6 +143,9 @@ aws_cli_cmd.txt
 
 # trials files
 trials/
+print_files_list.py
+website/templates/dummy.html
+website/templates/landing.html
 
 # serialized data files
 stock_deepar/
