@@ -41,7 +41,7 @@ def lambda_handler(event, context):
                                            ContentType='application/json',  # The data format that is expected
                                            Body=encode_request(ticker_name=request_body_dict['ticker_name'],
                                                                s3_resource=s3_resource, s3_bucket=data_bucket_name,
-                                                               prefix='valid'))
+                                                               prefix='train'))
 
     # The response is an HTTP response whose body contains the result of our inference
     result = response['Body'].read().decode('utf-8')
@@ -58,7 +58,11 @@ def lambda_handler(event, context):
 
 def encode_future_request(request_body, s3_resource, s3_bucket, prefix) -> bytes:
     """
-    Encodes a request to be fed to the SageMaker endpoint from a start date on
+    Encodes a request to be fed to the SageMaker endpoint from a start date on.
+    :param request_body: a dictionary that describe what kind of prediction is desired
+    :param s3_resource: AWS S3 resource identifier
+    :param s3_bucket: AWS S3 bucket name
+    :param prefix: AWS S3 bucket inner path
     :return: a json object containing a request ready to be sent to the endpoint
     """
 
@@ -77,14 +81,14 @@ def encode_future_request(request_body, s3_resource, s3_bucket, prefix) -> bytes
     return json.dumps(http_request_data).encode("utf-8")
 
 
-def encode_request(ticker_name, s3_resource, s3_bucket, prefix):
+def encode_request(ticker_name, s3_resource, s3_bucket, prefix) -> bytes:
     """
     Encodes a request to be fed to the SageMaker endpoint
     :param s3_bucket: S3 bucket where to find json data
     :param s3_resource: s3 resource where the data is located
     :param ticker_name: a string indicating which stock has to be predicted.
                         Possible values: 'IBM', 'AAPL', 'AMZN', 'GOOGL'.
-    :param data_source: data source to be used for prediction (test, validation, etc.)
+    :param prefix: data source to be used for prediction (test, validation, etc.)
     :return: a json string containing a request ready to be sent to the endpoint
     """
     instances = [get_stock_data(ticker_name, s3_resource=s3_resource,
@@ -180,5 +184,5 @@ def get_stock_data(ticker_name, s3_resource, s3_bucket, prefix='') -> dict:
     elif ticker_name.upper() == "GOOGL":
         return get_google_adj_cls_from_s3(s3_resource, s3_bucket, prefix)
     else:
-        # TODO: add error handling
+        # TODO: add input error handling
         return None

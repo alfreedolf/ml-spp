@@ -49,7 +49,7 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
         # retrieving x-ticks
         if isinstance(start, str) and start !="":
             start_date = datetime.strptime(start, "%Y-%m-%d %H:%M:%S").date()
-        elif isinstance(start, datetime.datetime):
+        elif isinstance(start, datetime):
             start_date = start.date()
         elif isinstance(start, datetime.date):
             starte_date = start

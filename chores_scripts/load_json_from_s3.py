@@ -54,7 +54,18 @@ def copy_to_bucket(src_bucket_name, src_prefix, dst_bucket_name, dst_prefix, fil
     s3_resource.Object(dst_bucket_name, dst_complete_file_name).copy(copy_source)
 
 
-# test
+# train data
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/train',
+               dst_bucket_name=data_bucket_name,  dst_prefix='train', file_name='IBM.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/train',
+               dst_bucket_name=data_bucket_name, dst_prefix='train', file_name='AAPL.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/train',
+               dst_bucket_name=data_bucket_name, dst_prefix='train', file_name='AMZN.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/train',
+               dst_bucket_name=data_bucket_name, dst_prefix='train', file_name='GOOGL.json')
+
+
+# test data
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/test',
                dst_bucket_name=data_bucket_name,  dst_prefix='test', file_name='IBM.json')
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/test',
@@ -64,7 +75,7 @@ copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/test
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/test',
                dst_bucket_name=data_bucket_name, dst_prefix='test', file_name='GOOGL.json')
 
-# benchmark
+# validation data
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/valid',
                dst_bucket_name=data_bucket_name, dst_prefix='valid', file_name='IBM.json')
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/valid',
@@ -74,15 +85,35 @@ copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/vali
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/valid',
                dst_bucket_name=data_bucket_name, dst_prefix='valid', file_name='GOOGL.json')
 
-# benchmark
-copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-               dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='IBM.json')
-copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-               dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='AAPL.json')
-copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-               dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='AMZN.json')
-copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-               dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='GOOGL.json')
+# # benchmark
+# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
+#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='IBM.json')
+# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
+#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='AAPL.json')
+# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
+#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='AMZN.json')
+# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
+#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='GOOGL.json')
+
+# benchmark test data
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_test',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_test', file_name='IBM.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_test',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_test', file_name='AAPL.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_test',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_test', file_name='AMZN.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_test',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_test', file_name='GOOGL.json')
+
+# benchmark valid data
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_valid',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_valid', file_name='IBM.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_valid',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_valid', file_name='AAPL.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_valid',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_valid', file_name='AMZN.json')
+copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_valid',
+               dst_bucket_name=data_bucket_name, dst_prefix='benchmark_valid', file_name='GOOGL.json')
 
 # sagemaker = boto3.client('sagemaker')
 # sagemaker = boto3.Session().client('sagemaker')

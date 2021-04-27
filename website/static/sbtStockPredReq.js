@@ -20,11 +20,13 @@ function submitForm(oFormElement) {
         // alert(start_date.value)
         if (start_date.value !== "")
         {
+            // ask Flask to show complete comparison Prediction quantiles (from endpoint) 
             flaskPostRequest = $.post("/predict_future", { start_date: start_date_picker.value, predicted_data: result });
         }
         else
         {
-            flaskPostRequest = $.post("/predict", { ticker_name: stock.value, predicted_data: result, dataset: 'valid' });
+            // ask Flask to show complete comparison Ground Truth (test data) + Prediction quantiles (from endpoint) + benchmark (SMA constant value) 
+            flaskPostRequest = $.post("/predict", { ticker_name: stock.value, predicted_data: result, dataset: 'test' });
         }
         // var flaskPostRequest = $.post("/predict", { ticker_name: stock.value, predicted_data: result, dataset: 'valid' });
         

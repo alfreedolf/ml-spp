@@ -1,3 +1,5 @@
+from datetime import date
+import datetime
 from flask import Flask, request, render_template
 from numpy.lib.function_base import quantile
 from source_deepar.display_quantiles import display_quantiles_flask
@@ -18,14 +20,17 @@ def home():
 def predict():
     # retrieving data to be used as ground truth
     ticker_name = request.form['ticker_name']
-    req_dataset = request.form['dataset']
-    gt_dict = get_stock_data_from_s3_bucket(ticker_name, req_dataset)
+    # dataset target of the prediction
+    tgt_dataset = request.form['dataset']
+    gt_dict = get_stock_data_from_s3_bucket(ticker_name, tgt_dataset)
     # retrieving ts start date
+    # in_data_start = datetime.datetime.strptime(gt_dict['start'], "%Y-%m-%d %H:%M:%S")
+    # start_date = in_data_start  + datetime.timedelta(days=len(gt_dict['target']))
     start_date = gt_dict['start']
     # retrieving target ts data
     target_ts = gt_dict['target']
     # retrieving benchmark data
-    bk_dict = get_stock_data_from_s3_bucket(ticker_name, 'benchmark')
+    bk_dict = get_stock_data_from_s3_bucket(ticker_name, 'benchmark_test')
     benchmark_ts = bk_dict['target']
 
     # retrieving predicted data to be plot togheter with above data
@@ -38,9 +43,9 @@ def predict():
                                  bench_mark_prediction_name='SMA', start=start_date)
     return qp
 
+
 @app.route('/predict_future', methods=['POST'])
 def predict_future():
-
     # retrieving start date
     start_date = request.form['start_date']
 
@@ -50,7 +55,7 @@ def predict_future():
     quantiles_dict = pred_dict[0]['quantiles']
 
     # displaying quantiles graph
-    qp = display_quantiles_flask(quantiles_dict, start=start_date+" {}:{}:{}".format("00", "00", "00"))
+    qp = display_quantiles_flask(quantiles_dict, start=start_date + " {}:{}:{}".format("00", "00", "00"))
     return qp
 
 
