@@ -1,6 +1,6 @@
 # ml-spp
 
-This project implements a stock prices prediction proposed solution on the following stocks:
+This project implements a stock prices prediction proposed solution of the following stocks Adjusted Close:
 
 * IBM
 * Apple
@@ -15,12 +15,15 @@ The project currently supports two different models for stock  Adjusted Close pr
 
 To run the project, upload it to a SageMaker notebook instance.
 To work the SageMaker notebook instance has also to run on:
-* on conda_pythorch_p36 kernel (although it could probably run on other kernels that supports pandas too)
-* a lifecycle configuration wich includes a [start script](on_start.sh) to install following prerequisites packages:
+* on conda_pytorch_p36 kernel (although it could probably run on other kernels that supports pandas too)
+* a lifecycle configuration which includes a [start script](on_start.sh) to install following prerequisites packages:
     * yfinance
     * scikit-learn  
 
-The project contains also a web application to interrogate 
+The project contains also a web application to interrogate SageMaker define endpoint.
+The web application is based on Flask framework and interrogates the endpoint through a REST API, defined by means of
+AWS API Gateway.
+The AWS API Gateway interrogated the endpoint through an AWS Lambda function. For more details, look ad the ProjectReport.pdf
 
 
 # Project files and folder
@@ -29,6 +32,9 @@ Here follows project structure:
 ## License file
 Currently, under MIT license.\
 LICENCE
+
+## Project report
+[ProjectReport.pdf](ProjectReport.pdf)
 
 ## Jupyter Notebooks
 [0.DataGathering.ipynb](0.DataGathering.ipynb)\
