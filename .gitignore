@@ -146,10 +146,12 @@ trials/
 print_files_list.py
 website/templates/dummy.html
 website/templates/landing.html
+chores_scripts/test_yfinance.py
 
 # serialized data files
-stock_deepar/
-*.json
+#stock_deepar/
+#*.json
 
 # old files to be deleted
 old_files/
+data/

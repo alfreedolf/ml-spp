@@ -1,18 +1,27 @@
 import json
 import boto3
 
-# from source_deepar.deepar_lambda_function import get_ibm_json_from_s3
-
 import os
 import uuid
 
 
 def create_bucket_name(bucket_prefix):
-    # The generated bucket name must be between 3 and 63 chars long
+    """
+    Function to generate a valid S3 bucket name to store data permanently on S3 for future analysis
+    The generated bucket name must be between 3 and 63 chars long
+    :param bucket_prefix: desired bucket prefix
+    :return: full bucket unique name
+    """
     return ''.join([bucket_prefix, str(uuid.uuid4())])
 
 
 def create_bucket(bucket_prefix, s3_connection):
+    """
+    Function to generate a valid S3 bucket name to store data permanently on S3 for future analysis
+    :param bucket_prefix: desired bucket prefix
+    :param s3_connection: an S3 connection to be used as
+    :return: a bucket name and a bucket creation response
+    """
     session = boto3.session.Session()
     current_region = session.region_name
     bucket_name = create_bucket_name(bucket_prefix)
@@ -26,18 +35,15 @@ def create_bucket(bucket_prefix, s3_connection):
 
 s3_resource = boto3.resource('s3')
 
-# data_bucket = create_bucket(bucket_prefix='stock-prediction-data-', s3_connection=s3_resource)
-# data_bucket_name = data_bucket[0]
-
 source_bucket = "sagemaker-eu-central-1-172877690028"
 data_bucket_name = "stock-prediction-data-4327a669-7f13-48c7-aa4a-49a80b9e1e32"
 
 
 def copy_to_bucket(src_bucket_name, src_prefix, dst_bucket_name, dst_prefix, file_name):
     """
-
-    :param src_bucket_name:
-    :param dst_bucket_name:
+    This function copies files from a source S3 bucket to a destination S3 bucket
+    :param src_bucket_name: source bucket name
+    :param dst_bucket_name: destination bucket name
     :param src_prefix:
     :param dst_prefix:
     :param file_name:
@@ -85,15 +91,6 @@ copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/vali
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/valid',
                dst_bucket_name=data_bucket_name, dst_prefix='valid', file_name='GOOGL.json')
 
-# # benchmark
-# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='IBM.json')
-# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='AAPL.json')
-# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='AMZN.json')
-# copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark',
-#                dst_bucket_name=data_bucket_name, dst_prefix='benchmark', file_name='GOOGL.json')
 
 # benchmark test data
 copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benchmark_test',
