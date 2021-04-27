@@ -123,7 +123,7 @@ copy_to_bucket(src_bucket_name=source_bucket, src_prefix='stock_deepar/json/benc
 # S3 bucket selection
 # bucket = sagemaker_session.default_bucket()
 
-from source_deepar.stock_prediction_deepar_vd import get_stock_data
+from source_deepar.lambda_stock_prediction import get_stock_data
 
 ibm_json = get_stock_data('IBM', s3_resource, data_bucket_name)
 aapl_json = get_stock_data('AAPL', s3_resource, data_bucket_name)

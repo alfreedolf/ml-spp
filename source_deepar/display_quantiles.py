@@ -8,11 +8,12 @@ from datetime import datetime, timedelta
 
 def display_quantiles(prediction, target_ts=None, benchmark_prediction=None, benchmark_prediction_name=None):
     """
-    Show predictions for input time series against comparison values
-    :param prediction:
-    :param target_ts:
-    :param benchmark_prediction:
-    :param benchmark_prediction_name:
+    Show predictions for input time series against comparison values.
+    This function uses pandas library
+    :param prediction: time series prediction prediction produced by a DeepAR model
+    :param target_ts: prediction target time series
+    :param benchmark_prediction: benchmark model prediction
+    :param benchmark_prediction_name: benchmark model name to be shown in legend
     """
     plt.figure(figsize=(12, 6))
     # get the target month of data
@@ -35,11 +36,13 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
                             bench_mark_prediction_name=None, start=None):
     """
     Show predictions for input time series against comparison values in a Flask application
-    :param prediction:
-    :param target_ts:
-    :param bench_mark_prediction:
-    :param bench_mark_prediction_name:
-    :param start:
+    (avoids a memory leak that may occur using pyplot as in th `display_quantiles` function)
+    This function is conceived to be used by a Flask application, and it will not make use of pandas
+    :param prediction: time series prediction prediction produced by a DeepAR model
+    :param target_ts: prediction target time series
+    :param bench_mark_prediction: benchmark model prediction
+    :param bench_mark_prediction_name: benchmark model name to be shown in legend
+    :param start: plot start date
     :return: a <img> HTML5 element containing the plot
     """
 
