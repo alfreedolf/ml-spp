@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # SageMaker notebook init bash files
-on_start.sh
+#on_start.sh
 on_create.sh
 
 # VS Code environment files
@@ -147,3 +147,6 @@ trials/
 # serialized data files
 stock_deepar/
 *.json
+
+# old files to be deleted
+old_files/
