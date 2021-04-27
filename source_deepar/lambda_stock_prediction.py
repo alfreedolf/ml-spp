@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     # S3 resource invocation
     s3_resource = boto3.resource('s3')
     # S3 bucket selection
-    data_bucket_name = "stock-prediction-data-4327a669-7f13-48c7-aa4a-49a80b9e1e32"
+    data_bucket_name = "put_here_data_bucket_name"
     # The SageMaker runtime is what allows us to invoke the endpoint that we've created.
     runtime = boto3.Session().client('sagemaker-runtime')
 
