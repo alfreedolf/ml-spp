@@ -61,7 +61,7 @@ def display_quantiles_flask(prediction, target_ts=None, bench_mark_prediction=No
         x_ticks = [start_date + x * timedelta(days=1) for x in range(len(prediction['0.5']))]
         ax.set_xticklabels(["{}/{}".format(x_tick.day, x_tick.month) for x_tick in x_ticks])
     if target_ts is not None:
-        ax.plot(target_ts, label='real Adjusted Close')
+        ax.plot(target_ts[-len(x_ticks):], label='real Adjusted Close')
 
     # get the quantile values at 10 and 90%
     p10 = np.array(prediction['0.1'], dtype=float)

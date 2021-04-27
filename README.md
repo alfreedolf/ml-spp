@@ -50,10 +50,6 @@ The notebooks should be run in sequence:
 ## SageMaker notebook instance lifecycle script
 [on_start.sh](on_start.sh)
 
-## Chores scripts
-These file(s) where used to run some minor works needed to manage S3 serialized data.\
-[chores_scripts/load_json_from_s3.py](chores_scripts/load_json_from_s3.py)
- 
 ## DeepAR model related code
 This folder has been created to host files needed to interface with SageMaeker DeepAR model,
 and to plot results from there.\

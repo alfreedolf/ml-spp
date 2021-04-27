@@ -155,3 +155,5 @@ chores_scripts/test_yfinance.py
 # old files to be deleted
 old_files/
 data/
+# chore scripts
+chores_scripts/

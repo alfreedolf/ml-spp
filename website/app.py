@@ -21,17 +21,18 @@ def predict():
     # retrieving data to be used as ground truth
     ticker_name = request.form['ticker_name']
     # dataset target of the prediction
+
     tgt_dataset = request.form['dataset']
+    pred_used_dataset = 'train'
+
     gt_dict = get_stock_data_from_s3_bucket(ticker_name, tgt_dataset)
-    # retrieving ts start date
-    # in_data_start = datetime.datetime.strptime(gt_dict['start'], "%Y-%m-%d %H:%M:%S")
-    # start_date = in_data_start  + datetime.timedelta(days=len(gt_dict['target']))
-    start_date = gt_dict['start']
     # retrieving target ts data
     target_ts = gt_dict['target']
     # retrieving benchmark data
     bk_dict = get_stock_data_from_s3_bucket(ticker_name, 'benchmark_test')
     benchmark_ts = bk_dict['target']
+    # retrieving ts start date
+    start_date = bk_dict['start']
 
     # retrieving predicted data to be plot togheter with above data
     js_pred_data = request.form['predicted_data']
