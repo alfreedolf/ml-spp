@@ -43,6 +43,12 @@ def std_dev(time_series, window_size=20, fwd_fill_to_end=0):
     else:
         std = time_series.rolling(window=window_size).std()
         std[-fwd_fill_to_end:] = std.iloc[-fwd_fill_to_end]
+
+    '''
+    Standard deviation feature is empty for the first *n* days, where *n* is the window size,
+    so I'll use some backfill to fill NaN values
+    '''
+    std.fillna(method='backfill', inplace=True)
     return std
 
 
