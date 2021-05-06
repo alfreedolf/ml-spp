@@ -20,7 +20,11 @@ def moving_average(time_series, window_size=20, fwd_fill_to_end=0):
     else:
         sma = time_series.rolling(window=window_size).mean()
         sma[-fwd_fill_to_end:] = sma.iloc[-fwd_fill_to_end]
-    # moving average is computed forward-wise, so needs a backfill method to be used to fix first window size values
+
+    '''
+    Moving average feature is empty for the first *n* days, where *n* is the window size,
+    so I'll use some backfill to fill NaN values
+    '''
     sma.fillna(method='backfill', inplace=True)
     return sma
 
