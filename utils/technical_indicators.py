@@ -16,11 +16,13 @@ def moving_average(time_series, window_size=20, fwd_fill_to_end=0):
     :return: Simple Moving Average time series
     """
     if fwd_fill_to_end <= 0:
-        return time_series.rolling(window=window_size).mean()
+        sma = time_series.rolling(window=window_size).mean()
     else:
         sma = time_series.rolling(window=window_size).mean()
         sma[-fwd_fill_to_end:] = sma.iloc[-fwd_fill_to_end]
-        return sma
+    # moving average is computed forward-wise, so needs a backfill method to be used to fix first window size values
+    sma.fillna(method='backfill', inplace=True)
+    return sma
 
 
 # standard deviation
@@ -33,11 +35,11 @@ def std_dev(time_series, window_size=20, fwd_fill_to_end=0):
     :return: Standard Deviation time series
     """
     if fwd_fill_to_end <= 0:
-        return time_series.rolling(window=window_size).std()
+        std = time_series.rolling(window=window_size).std()
     else:
         std = time_series.rolling(window=window_size).std()
         std[-fwd_fill_to_end:] = std.iloc[-fwd_fill_to_end]
-        return std
+    return std
 
 
 # stock price volatility
@@ -53,13 +55,13 @@ def volatility(time_series, window_size=20):
     return vol
 
 
-# bollinger bands
+# Bollinger bands
 def bollinger_bands(stock_price_time_series, window_size=20, num_of_std=2, fwd_fill_to_end=0):
     """
     Computes Bollinger bands function values on a time series
-    :param stock_price_time_series:
-    :param window_size:
-    :param num_of_std:
+    :param stock_price_time_series: stock prices time series on which bollinger bands are computed
+    :param window_size: window size used for moving average and standard deviation computation
+    :param num_of_std: number of standard deviations used for
     :param fwd_fill_to_end:
     :return: moving average time series, bollinger upper band, bollinger lower band
     """
