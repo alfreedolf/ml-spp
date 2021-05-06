@@ -66,7 +66,7 @@ def bollinger_bands(stock_price_time_series, window_size=20, num_of_std=2, fwd_f
     :param stock_price_time_series: stock prices time series on which bollinger bands are computed
     :param window_size: window size used for moving average and standard deviation computation
     :param num_of_std: number of standard deviations used for
-    :param fwd_fill_to_end:
+    :param fwd_fill_to_end: index from which computation must stop and propagate last value
     :return: moving average time series, bollinger upper band, bollinger lower band
     """
     rolling_mean = moving_average(stock_price_time_series, window_size=window_size, fwd_fill_to_end=fwd_fill_to_end)
