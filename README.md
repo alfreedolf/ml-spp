@@ -1,6 +1,7 @@
 # ml-spp
 
-This project implements a stock prices prediction proposed solution of the following stocks Adjusted Close:
+This project explores a set of models for stock prices predictions.
+Repository implemented solutions aim to predict following stocks Adjusted Close value:
 
 * IBM
 * Apple
@@ -12,9 +13,8 @@ The project currently supports two different models for stock  Adjusted Close pr
 * a DeepAR model.
 
 
-
-To run the project, upload it to a SageMaker notebook instance.
-in order to work, notebook instance has also to run on:
+Most of the project could be run locally, but the DeepAR based model needs to be run in a SageMaker notebook instance.
+When run on SageMaker, in order to work, notebook has also to comply the following prerequisites:
 * conda_pytorch_p36 kernel (although it could probably run on other kernels that supports pandas too)
 * a lifecycle configuration which includes a [start script](on_start.sh) to install following prerequisites packages:
     * yfinance
@@ -40,14 +40,14 @@ Currently, under MIT license.\
 [0.DataGathering.ipynb](0.DataGathering.ipynb)\
 [1.ExploratoryDataAnalysis.ipynb](1.ExploratoryDataAnalysis.ipynb)\
 [2.BenchmarkModel.ipynb](2.BenchmarkModel.ipynb)\
-[3.DeepAR-StockPricesPredictions.ipynb](3.DeepAR-StockPricesPredictions.ipynb)
+[3.DeepAR-StockPricesPredictions.ipynb](3.DeepAR-StockPricesPredictions.ipynb) (relies on AWS SageMaker DeepAR implementation)
 
 The notebooks should be run in sequence:
 1. [1.ExploratoryDataAnalysis](1.ExploratoryDataAnalysis.ipynb) should be run re-using the kernel from [0.DataGathering](0.DataGathering.ipynb)
 2. [2.BenchmarkModel](2.BenchmarkModel.ipynb) should be run re-using the kernel from [1.ExploratoryDataAnalysis](1.ExploratoryDataAnalysis.ipynb)
 3. [3.DeepAR-StockPricesPredictions](3.DeepAR-StockPricesPredictions.ipynb) should be run re-using the kernel from [2.BenchmarkModel](2.BenchmarkModel.ipynb)
 
-## SageMaker notebook instance lifecycle script
+## AWS SageMaker notebook instance lifecycle script
 [on_start.sh](on_start.sh)
 
 ## DeepAR model related code
@@ -70,9 +70,8 @@ It currently contains:
 
 ## Web application code
 This folder contains the implementation of a Flask and JavaScript based web app to interrogate model endpoint.\
-This is a very interesting future development thread. Any help would be welcome.\
+This part of the project has been just sketched for quick presentation purposes but could be an interesting future development thread. Any help would be welcome.\
 [website/static/formControl.js](website/static/formControl.js)\
 [website/static/sbtStockPredReq.js](website/static/sbtStockPredReq.js)\
 [website/templates/base.html](website/templates/base.html)\
 [website/app.py](website/app.py)
-
