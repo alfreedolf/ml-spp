@@ -4,6 +4,7 @@
 # A couple of fuctions to remove weekdays is also planned to be implemented
 
 import datetime
+import pandas_market_calendars as mcal
 
 
 def train_test_valid_split(ts, prediction_length):
@@ -26,14 +27,25 @@ def train_test_valid_split(ts, prediction_length):
     ts_train, ts_test, ts_valid = ts[0:train_size].copy(), ts[0:test_size].copy(), ts[test_size:].copy()
     return ts_train, ts_test, ts_valid
 
-# TODO implement a function to remove weekdays from stock prices time series
-def weekend_removal(ts):
+
+# TODO check function implementation to remove weekend days and holidays from stock prices time series
+def non_market_days_removal(ts, calendar_name='NYSE'):
     """
-    This function removes Week End days from time series index
+    This function removes week end and holidays from time series index
     :param ts: input time series with daily frequency
-    :return: a time series where all the days are week days
+    :param calendar_name: a calendar name from the list at
+    https://pandas-market-calendars.readthedocs.io/en/latest/calendars.html
+    :return: a time series where all the days are all market days according to selected calendar
     """
-    already_used_days = []
+
+    # retrieving calendar
+    calendar = mcal.get_calendar(calendar_name)
+    # retrieving calendar schedule
+    schedule = calendar.schedule(start_date=ts.index[0], end_date=ts.index[-1])
+    # fixing index within the the date range
+    ts.index = calendar.date_range(schedule, frequency='1D')
+    return ts
+
     for i, d in enumerate(ts):
         week_day_num = d.index.day().weekday()
 
@@ -45,6 +57,7 @@ def weekend_removal(ts):
             ts.index[i], already_used_days = adjust_week_day(ts.index[i], already_used_days)
 
     return ts
+
 
 # TODO implement a function to adjust weekdays according to weekdays sequence
 def adjust_week_day(current_day, already_used_days):
